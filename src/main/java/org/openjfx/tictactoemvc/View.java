@@ -1,22 +1,21 @@
 package org.openjfx.tictactoemvc;
 
-import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
-import javafx.scene.text.Font;
 
-public class View extends Application {
+public class View {
 
     private Button[][] buttons;
     private Label resultLabel;
+    private Label scoreLabel; // To display the score
     private Controller controller; // Reference to the Controller object
 
-    @Override
-    public void start(Stage primaryStage) {
+    public Scene createLayout() {
         // Create a GridPane for arranging the buttons
         GridPane gridPane = new GridPane();
         gridPane.setAlignment(Pos.CENTER);
@@ -35,7 +34,7 @@ public class View extends Application {
                 // Add an event handler for each button
                 int Row = row;
                 int Col = col;
-                button.setOnAction(_ -> {
+                button.setOnAction(event -> {  // 'event' is the named parameter
                     // Pass row and col to Controller
                     controller.handleButtonClick(Row, Col);
                 });
@@ -47,14 +46,15 @@ public class View extends Application {
         resultLabel.setFont(new Font("Arial", 20));
         gridPane.add(resultLabel, 0, ROWS + 1, COLS, 1);
 
-        // Create a scene and set it on the stage
-        Scene scene = new Scene(gridPane, 300, 300);
-        primaryStage.setTitle("Tic-Tac-Toe");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        // Create a Label to display the scores
+        scoreLabel = new Label("Score - X: 0 | O: 0");
+        scoreLabel.setFont(new Font("Arial", 16));
+        gridPane.add(scoreLabel, 0, ROWS + 2, COLS, 1);
 
         // Create a Controller object
         controller = new Controller(new Model(), this);
+
+        return new Scene(gridPane, 300, 400); // Increase height to accommodate new button
     }
 
     public void updateButton(int row, int col, char player) {
@@ -66,19 +66,30 @@ public class View extends Application {
 
     public void showGameOverMessage(char winner) {
         String message;
-        if (winner == ' ') {
+        if (winner == '-') {
             message = "Draw!";
         } else {
             message = "Player " + winner + " wins!";
         }
         resultLabel.setText(message);
 
+        // Update the score
+        controller.getModel().updateScore(winner);
+        updateScoreLabel();
+
         // Display the reset screen after the game ends
         new ResetScreen(this, controller.getModel()).show();
     }
+
     public Label getResultLabel() {
         return resultLabel;
     }
+
+    public void updateScoreLabel() {
+        // Update the score display with the current score from the Model
+        scoreLabel.setText("Score - X: " + controller.getModel().getScoreX() + " | O: " + controller.getModel().getScoreO());
+    }
+
 
     public void disableAllButtons() {
         for (int i = 0; i < 3; i++) {
@@ -94,4 +105,5 @@ public class View extends Application {
                 buttons[i][j].setDisable(false);
             }
         }
-    }}
+    }
+}
