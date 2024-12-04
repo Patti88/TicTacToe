@@ -10,7 +10,6 @@ public class MainApplication extends Application {
     public void start(Stage stage) {
         // Create the View (Game UI)
         View view = new View();
-
         // Create the Scene from the View's layout
         Scene scene = view.createLayout();
 
